@@ -30,6 +30,7 @@ pub struct Composition {
 pub enum Data {
     Reference(String),
     Bytes(Vec<u8>),
+    Integer(i64),
 }
 
 #[derive(Clone, Debug)]
@@ -101,7 +102,7 @@ impl PureObject {
     pub fn apply(&self, composition: &Composition) -> PureObject {
         match composition.method.data.clone() {
             Data::Reference(name) => self.apply_reference(name, composition),
-            _ => todo!(),
+            _ => panic!("method's data shouldn't be anything but a reference"),
         }
     }
 
@@ -121,6 +122,9 @@ impl PureObject {
     fn apply_reference(&self, name: String, composition: &Composition) -> PureObject {
         match name.as_str() {
             "Concatenate" => self.concatenate(composition),
+	    "Truncate" => self.truncate(composition),
+	    "Add" => self.add(composition),
+	    "Subtract" => self.subtract(composition),
             _ => todo!(),
         }
     }
@@ -138,11 +142,72 @@ impl PureObject {
                 PureObject {
                     name: self.name.clone(),
                     data: Data::Bytes(bytes),
-                    inception: Utc::now(),
+                    inception: composition.method.inception,
                 }
             }
-            _ => panic!("attempted Concatenate on object of wrong type"),
+            _ => panic!("attempted Concatenate on object of wrong type (expected Bytes)"),
         }
+    }
+
+    fn truncate(&self, composition: &Composition) -> PureObject {
+	match &self.data {
+	    Data::Bytes(bytes) => {
+                let mut bytes = bytes.clone();
+                for other_object in &composition.arguments {
+                    match other_object.follow_reference(self.inception).data {
+                        Data::Integer(to_length) => bytes.truncate(to_length.max(0) as usize),
+                        _ => panic!("cannot Truncate an object to a length of that type (expected Integer)"),
+                    }
+		    break;
+                }
+                PureObject {
+                    name: self.name.clone(),
+                    data: Data::Bytes(bytes),
+                    inception: composition.method.inception,
+                }
+            }
+            _ => panic!("attempted Truncate on object of wrong type (expected Bytes)"),
+	}
+    }
+
+    fn add(&self, composition: &Composition) -> PureObject {
+	match &self.data {
+	    Data::Integer(left_addend) => {
+                let mut summand = left_addend.clone();
+                for other_object in &composition.arguments {
+                    match other_object.follow_reference(self.inception).data {
+                        Data::Integer(addend) => summand += addend,
+                        _ => panic!("cannot Add an object of that type (expected Integer)"),
+                    }
+                }
+                PureObject {
+                    name: self.name.clone(),
+                    data: Data::Integer(summand),
+                    inception: composition.method.inception,
+                }
+            }
+            _ => panic!("attempted Add on object of wrong type (expected Integer)"),
+	}
+    }
+
+    fn subtract(&self, composition: &Composition) -> PureObject {
+	match &self.data {
+	    Data::Integer(left_subbend) => {
+                let mut difference = left_subbend.clone();
+                for other_object in &composition.arguments {
+                    match other_object.follow_reference(self.inception).data {
+                        Data::Integer(subbend) => difference -= subbend,
+                        _ => panic!("cannot Subtract an object of that type (expected Integer)"),
+                    }
+                }
+                PureObject {
+                    name: self.name.clone(),
+                    data: Data::Integer(difference),
+                    inception: composition.method.inception,
+                }
+            }
+            _ => panic!("attempted Subtract on object of wrong type (expected Integer)"),
+	}
     }
 }
 
