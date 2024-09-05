@@ -37,21 +37,21 @@ fn main() {
                         object::Pure::new(object::Data::Reference("One".into())),
                         object::Pure::new(object::Data::Reference("Two".into())),
                     ],
-                )); // Fish <- Fish.Add(One, Two)
+                )); // Fish <- Add(Fish, One, Two)
             universe
                 .get_mut("Fish")
                 .unwrap()
                 .compose(object::Composition::new(
                     object::Pure::new(object::Data::Reference("Add".into())),
                     vec![object::Pure::new(object::Data::Reference("Fish".into()))],
-                )); // Fish <- Fish.Add(Fish)
+                )); // Fish <- Add(Fish, Fish)
             universe
                 .get_mut("Fish")
                 .unwrap()
                 .compose(object::Composition::new(
                     object::Pure::new(object::Data::Reference("Subtract".into())),
                     vec![object::Pure::new(object::Data::Reference("One".into()))],
-                )); // Fish <- Fish.Subtract(One)
+                )); // Fish <- Subtract(Fish, One)
             universe
                 .get_mut("A")
                 .unwrap()
@@ -61,14 +61,14 @@ fn main() {
                         object::Pure::new(object::Data::Reference("B".into())),
                         object::Pure::new(object::Data::Reference("C".into())),
                     ],
-                )); // A <- A.Concatenate(B, C)
+                )); // A <- Concatenate(A, B, C)
             universe
                 .get_mut("C")
                 .unwrap()
                 .compose(object::Composition::new(
                     object::Pure::new(object::Data::Reference("Concatenate".into())),
                     vec![object::Pure::new(object::Data::Reference("C".into()))],
-                )); // C <- C.Concatencate(C)
+                )); // C <- Concatencate(C, C)
             universe
                 .get_mut("A")
                 .unwrap()
@@ -78,14 +78,14 @@ fn main() {
                         object::Pure::new(object::Data::Reference("B".into())),
                         object::Pure::new(object::Data::Reference("C".into())),
                     ],
-                )); // A <- A.Concatenate(B, C)
+                )); // A <- Concatenate(A, B, C)
             universe
                 .get_mut("A")
                 .unwrap()
                 .compose(object::Composition::new(
                     object::Pure::new(object::Data::Reference("Truncate".into())),
                     vec![object::Pure::new(object::Data::Reference("Fish".into()))],
-                )); // A <- A.Truncate(Fish)
+                )); // A <- Truncate(A, Fish)
             println!("{universe:#?}");
             universe["A"].clone()
         };
