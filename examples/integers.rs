@@ -1,4 +1,4 @@
-use ace_prototype::object;
+use ace_prototype::object::{self, Fundamental};
 use chrono::Utc;
 
 fn main() {
@@ -90,6 +90,6 @@ fn main() {
             println!("{universe:#?}");
             universe["A"].clone()
         };
-        println!("{:?}", a.evaluate(Utc::now())); // Show(A) ;; Should be "ABCBC"
+        println!("{:?}", a.flatten()); // Show(A) ;; Should be "ABCBC"
     }
 }

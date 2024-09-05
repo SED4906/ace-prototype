@@ -10,7 +10,7 @@ pub static UNIVERSE: Mutex<Universe> = Mutex::new(BTreeMap::new());
 
 pub trait Fundamental {
     fn composed(&self) -> bool;
-    fn flatten(&self) -> impl Fundamental;
+    fn flatten(&self) -> Pure;
 }
 
 #[derive(Clone, Debug)]
@@ -212,8 +212,8 @@ impl Fundamental for Pure {
         false
     }
 
-    fn flatten(&self) -> impl Fundamental {
-        Object::promote(self)
+    fn flatten(&self) -> Pure {
+        self.clone()
     }
 }
 
@@ -222,7 +222,7 @@ impl Fundamental for Object {
         !self.composition_stack.is_empty()
     }
 
-    fn flatten(&self) -> impl Fundamental {
+    fn flatten(&self) -> Pure {
         self.evaluate(Utc::now())
     }
 }

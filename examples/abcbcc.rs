@@ -48,6 +48,6 @@ fn main() {
             println!("{universe:#?}");
             universe["A"].clone()
         };
-        println!("{:?}", a.evaluate(Utc::now())); // Show(A) ;; Should be "ABCBCC"
+        println!("{:?}", a.flatten()); // Show(A) ;; Should be "ABCBCC"
     }
 }
